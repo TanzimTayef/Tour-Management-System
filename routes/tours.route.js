@@ -6,6 +6,6 @@ const toursController = require("../controllers/tours.controller");
 
 router.route("/").get(toursController.getAllTours).post(toursController.createTours);
 
-router.route("/:id").get(toursController.getTourById)
+router.route("/:id").get(toursController.getTourById).patch(toursController.updateById)
 
 module.exports = router;
