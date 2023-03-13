@@ -1,8 +1,31 @@
-const {  createToursService, getAllToursService, getTourByIdService, updateByIdService } = require("../service/tours.service");
+const {
+  createToursService,
+  getAllToursService,
+  getTourByIdService,
+  updateByIdService,
+} = require("../service/tours.service");
 
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await getAllToursService();
+    const filters = { ...req.query };
+    const exlcludedFields = ["sort", "page", "limit"];
+    exlcludedFields.forEach((filed) => delete filters[filed]);
+
+    const queries = {};
+
+    // sorting by specefing poperty:
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(",").join(" ");
+      queries.sortBy = sortBy;
+    }
+// Query by specefiq poperty:
+    if (req.query.fileds) {
+      const fileds = req.query.fileds.split(",").join(" ");
+      queries.fileds = fileds;
+    }
+
+    const tours = await getAllToursService(filters, queries);
+
     res.status(200).json({
       status: "success",
       message: "Tours founded successful.",
@@ -36,7 +59,7 @@ exports.createTours = async (req, res) => {
 
 exports.getTourById = async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     const tours = await getTourByIdService(id);
     res.status(200).json({
       status: "success",
@@ -52,15 +75,14 @@ exports.getTourById = async (req, res) => {
   }
 };
 
-
 exports.updateById = async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     const tour = await updateByIdService(id, req.body);
     res.status(200).json({
       status: "success",
       message: "Tour update successful.",
-      data: tour
+      data: tour,
     });
   } catch (err) {
     res.status(400).json({
